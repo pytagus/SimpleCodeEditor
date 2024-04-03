@@ -9,6 +9,8 @@ Version Management: Save versions of your work to track changes or revert to ear
 Customizable Python Path: Easily update the path to the Python interpreter to suit your development environment, ensuring compatibility and flexibility.
 Text Manipulation: Quickly indent or dedent selected text, facilitating code formatting and readability.
 
+![SimpleCodeEditorPicture](SimpleCodeEditor.png)
+
 ## How to Use
 Upon launching the Simple Code Editor, you'll find a straightforward interface with a menu bar and a toolbar at the top, alongside a spacious area for code editing.
 
