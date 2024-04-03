@@ -15,18 +15,22 @@ class CodeEditor:
         self.root.title("Simple Code Editor")
         self.config_path = os.path.join(os.path.expanduser('~'), '.my_code_editor_config')
         self.python_interpreter_path = self.load_config()
+        self.root.geometry("900x700")
         
         # Créer un Frame pour les boutons
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(side=tk.TOP, fill=tk.X)
 
         # Bouton Ouvrir
-        self.open_button = tk.Button(self.button_frame, text="Ouvrir", command=self.open_file)
+        self.open_button = tk.Button(self.button_frame, text="Open", command=self.open_file)
         self.open_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         # Bouton Sauvegarder
-        self.save_button = tk.Button(self.button_frame, text="Sauvegarder", command=self.save_file)
+        self.save_button = tk.Button(self.button_frame, text="Save", command=self.save_file)
         self.save_button.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        self.save_as_button = tk.Button(self.button_frame, text="Save As", command=self.save_file_as)
+        self.save_as_button.pack(side=tk.LEFT, padx=5, pady=5)
         
         # Bouton Version
         self.version_button = tk.Button(self.button_frame, text="Version", command=self.save_version)
@@ -102,6 +106,14 @@ class CodeEditor:
     
     def on_key_release(self, event=None):
         self.highlight_code(event)
+        
+    def save_file_as(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt",
+                                                 filetypes=[("Text files", "*.txt"), ("Python files", "*.py"), ("All files", "*.*")])
+        if not file_path:  # L'utilisateur a annulé
+            return
+        self.current_file_path = file_path  # Mise à jour du chemin du fichier courant
+        self.save_file()  # Sauvegarde le fichier
         
     def handle_tab(self, event):
             self.text_area.insert(tk.INSERT, " " * 4)
@@ -189,20 +201,17 @@ class CodeEditor:
             return None
     
     def run_code(self):
-        code_content = self.text_area.get("1.0", tk.END)
-        python_path = self.find_python_interpreter()  # Utiliser la méthode de recherche
+        if not self.current_file_path:
+            messagebox.showerror("Error", "Please save the file before running.")
+            return
     
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.py') as temp_file:
-            temp_file_name = temp_file.name
-            temp_file.write(code_content.encode('utf-8'))
-            temp_file.flush()  # Assurez-vous que tout est écrit
-        
+        python_path = self.find_python_interpreter()  # Utiliser la méthode de recherche pour obtenir le chemin de l'interpréteur Python
+    
         try:
-            subprocess.run([python_path, temp_file_name], check=True)
+            # Exécute le script Python directement depuis le chemin actuel
+            subprocess.run([python_path, self.current_file_path], check=True)
         except subprocess.CalledProcessError as e:
-            messagebox.showerror("Erreur lors de l'exécution", str(e))
-        finally:
-            os.unlink(temp_file_name)  # Supprime le fichier temporaire
+            messagebox.showerror("Error during execution", str(e))
             
     def move_text_left(self):
         try:
@@ -241,13 +250,15 @@ class CodeEditor:
         self.text_area.see(tk.INSERT)
     
     def save_file(self):
-        file_path = filedialog.asksaveasfilename()
-        if file_path:
-            with open(file_path, 'w') as file:
+        if not self.current_file_path:
+            # Comportement similaire à "Save As" s'il n'y a pas de fichier courant
+            self.save_file_as()
+        else:
+            with open(self.current_file_path, 'w') as file:
                 file_content = self.text_area.get(1.0, tk.END)
                 file.write(file_content)
             messagebox.showinfo("Sauvegardé", "Votre fichier a été sauvegardé.")
-
+    
     def quit_app(self):
         self.root.quit()
 
