@@ -19,6 +19,9 @@ Changing the Python Path: Should you need to change the Python interpreter, clic
 Customization
 The editor allows for basic syntax highlighting customization through the highlight_patterns method. Modify patterns here to adjust syntax highlighting to fit your needs.
 
+## Compiling
+The Simple Code Editor is not only user-friendly but also developer-friendly. Compiling it into a standalone executable is straightforward with PyInstaller, making distribution and deployment effortless. Simply run pyinstaller --onefile codeeditor.py from your terminal, and PyInstaller will generate a single executable file for your platform. This process encapsulates all the necessary dependencies, allowing the editor to be used on any compatible system without requiring Python to be installed. Additionally, for those who prefer working directly with the script, running the editor is as simple as executing python codeeditor.py in your command line. This flexibility ensures that whether you're looking to share your tool with others or just need a quick and lightweight code editor for personal use, the Simple Code Editor meets your needs with ease.
+
 ## License
 This project is open-sourced under the MIT License. See the LICENSE file for more details.
 
