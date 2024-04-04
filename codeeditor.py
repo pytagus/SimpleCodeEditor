@@ -52,9 +52,18 @@ class CodeEditor:
         
         self.python_path_button = tk.Button(self.button_frame, text="Python", command=self.change_python_path)
         self.python_path_button.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        # Dans la méthode __init__ de la classe CodeEditor
+        self.search_text = tk.StringVar()
+        self.search_entry = tk.Entry(self.button_frame, textvariable=self.search_text)
+        self.search_entry.pack(side=tk.LEFT, padx=5, pady=5)
+
+        self.search_button = tk.Button(self.button_frame, text="Search", command=self.search_next)
+        self.search_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.text_area = tk.Text(self.root, undo=True, wrap='word', font=("Monaco", 14))
         self.text_area.pack(expand=True, fill='both')
+        self.text_area.tag_configure("search_highlight", background="orange")
         self.text_area.bind('<Tab>', self.handle_tab)
 
         self.highlight_patterns()
@@ -247,6 +256,27 @@ class CodeEditor:
         end_index = self.text_area.index(f"{selection_start}+{len(modified_text)}c")
         self.text_area.tag_add(tk.SEL, selection_start, end_index)
         self.text_area.mark_set(tk.INSERT, selection_start)
+        self.text_area.see(tk.INSERT)
+    
+    def search_next(self):
+        search_query = self.search_text.get()
+        if not search_query:
+            messagebox.showinfo("Search", "Please enter search text.")
+            return
+
+        start_index = self.text_area.index(tk.INSERT)
+        pos = self.text_area.search(search_query, start_index, stopindex=tk.END)
+
+        if not pos:
+            pos = self.text_area.search(search_query, "1.0", stopindex=tk.END)
+            if not pos:
+                messagebox.showinfo("Search", "Text not found.")
+                return
+
+        end_pos = f"{pos}+{len(search_query)}c"
+        self.text_area.tag_remove("search_highlight", "1.0", tk.END)  # Enlève les surlignages précédents
+        self.text_area.tag_add("search_highlight", pos, end_pos)  # Applique le surlignage orange
+        self.text_area.mark_set(tk.INSERT, end_pos)
         self.text_area.see(tk.INSERT)
     
     def save_file(self):
