@@ -211,16 +211,16 @@ class CodeEditor:
     
     def run_code(self):
         if not self.current_file_path:
-            messagebox.showerror("Error", "Please save the file before running.")
+            messagebox.showerror("Erreur", "Veuillez sauvegarder le fichier avant de l'exécuter.")
             return
     
-        python_path = self.find_python_interpreter()  # Utiliser la méthode de recherche pour obtenir le chemin de l'interpréteur Python
+        python_path = self.find_python_interpreter()  # Utilise la méthode find_python_interpreter pour obtenir le chemin de l'interpréteur Python
     
         try:
             # Exécute le script Python directement depuis le chemin actuel
-            subprocess.run([python_path, self.current_file_path], check=True)
+            subprocess.run([python_path, os.path.abspath(self.current_file_path)], check=True, cwd=os.path.dirname(self.current_file_path))
         except subprocess.CalledProcessError as e:
-            messagebox.showerror("Error during execution", str(e))
+            messagebox.showerror("Erreur pendant l'exécution", str(e))
             
     def move_text_left(self):
         try:
@@ -296,3 +296,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = CodeEditor(root)
     root.mainloop()
+
