@@ -24,6 +24,10 @@ class CodeEditor:
         self.button_frame.pack(side=tk.TOP, fill=tk.X)
 
         # Bouton Ouvrir
+        self.new_button = tk.Button(self.button_frame, text="New", command=self.new_file)
+        self.new_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Bouton Ouvrir
         self.open_button = tk.Button(self.button_frame, text="Open", command=self.open_file)
         self.open_button.pack(side=tk.LEFT, padx=5, pady=5)
 
@@ -160,6 +164,14 @@ class CodeEditor:
         else:
             messagebox.showwarning("No Input", "No path was entered.")
     
+
+    def new_file(self):
+        self.current_file_path = None
+        self.status_bar['text'] = 'Nouveau fichier créé avec succès'
+        self.text_area.delete(1.0, tk.END)
+        self.highlight_code()
+
+
     def open_file(self, file_path=None):
         # Modifié pour accepter un argument file_path
         if not file_path:
