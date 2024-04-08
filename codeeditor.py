@@ -1,9 +1,11 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
+from tkinterdnd2 import DND_FILES, TkinterDnD  # Importez tkinterdnd2 ici
 import subprocess
 import datetime
 import tempfile
 import platform
+import tkinter.tix
 import json
 import sys
 import os
@@ -63,6 +65,11 @@ class CodeEditor:
 
         self.text_area = tk.Text(self.root, undo=True, wrap='word', font=("Monaco", 14))
         self.text_area.pack(expand=True, fill='both')
+
+        # Enregistrez la zone de texte comme cible de drop et liez l'événement de drop
+        self.text_area.drop_target_register(DND_FILES)
+        self.text_area.dnd_bind('<<Drop>>', self.on_file_drop)
+
         self.text_area.tag_configure("search_highlight", background="orange")
         self.text_area.bind('<Tab>', self.handle_tab)
 
@@ -78,6 +85,10 @@ class CodeEditor:
 
         self.root.config(menu=self.menu_bar)
         self.text_area.bind('<KeyRelease>', self.on_key_release)
+
+        # Création de la barre d'état
+        self.status_bar = tk.Label(self.root, text="Prêt", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
     def highlight_patterns(self):
         self.patterns = [
@@ -112,6 +123,12 @@ class CodeEditor:
                 start_index = self.text_area.index(f"1.0+{start}c")
                 end_index = self.text_area.index(f"1.0+{end}c")
                 self.text_area.tag_add(tag, start_index, end_index)
+
+    def on_file_drop(self, event):
+        # Obtenez le chemin du fichier déposé
+        file_path = event.data
+        if file_path:
+            self.open_file(file_path=file_path)
     
     def on_key_release(self, event=None):
         self.highlight_code(event)
@@ -143,10 +160,13 @@ class CodeEditor:
         else:
             messagebox.showwarning("No Input", "No path was entered.")
     
-    def open_file(self):
-        file_path = filedialog.askopenfilename()
+    def open_file(self, file_path=None):
+        # Modifié pour accepter un argument file_path
+        if not file_path:
+            file_path = filedialog.askopenfilename()
         if file_path:
-            self.current_file_path = file_path  # Mise à jour du chemin du fichier actuel
+            self.current_file_path = file_path
+            self.status_bar['text'] = f"Ouvert : {file_path}"
             with open(file_path, 'r') as file:
                 file_content = file.read()
                 self.text_area.delete(1.0, tk.END)
@@ -287,13 +307,14 @@ class CodeEditor:
             with open(self.current_file_path, 'w') as file:
                 file_content = self.text_area.get(1.0, tk.END)
                 file.write(file_content)
+            self.status_bar['text'] = f"Sauvegardé : {self.current_file_path}"
             messagebox.showinfo("Sauvegardé", "Votre fichier a été sauvegardé.")
     
     def quit_app(self):
         self.root.quit()
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = TkinterDnD.Tk()
     app = CodeEditor(root)
     root.mainloop()
 
