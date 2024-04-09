@@ -17,11 +17,15 @@ class CodeEditor:
         self.root.title("Simple Code Editor")
         self.config_path = os.path.join(os.path.expanduser('~'), '.my_code_editor_config')
         self.python_interpreter_path = self.load_config()
-        self.root.geometry("900x700")
+        self.root.geometry("1060x700")
         
         # Créer un Frame pour les boutons
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(side=tk.TOP, fill=tk.X)
+
+        # Bouton + New
+        self.new_button = tk.Button(self.button_frame, text="+", command=self.create_new_file)
+        self.new_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         # Bouton Ouvrir
         self.open_button = tk.Button(self.button_frame, text="Open", command=self.open_file)
@@ -51,6 +55,10 @@ class CodeEditor:
         # Bouton Run
         self.run_button = tk.Button(self.button_frame, text="Run", command=self.run_code)
         self.run_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Bouton Stop
+        self.stop_button = tk.Button(self.button_frame, text="Stop", command=self.stop_code_execution)
+        self.stop_button.pack(side=tk.LEFT, padx=5, pady=5)
         
         self.python_path_button = tk.Button(self.button_frame, text="Python", command=self.change_python_path)
         self.python_path_button.pack(side=tk.LEFT, padx=5, pady=5)
@@ -130,6 +138,14 @@ class CodeEditor:
         if file_path:
             self.open_file(file_path=file_path)
     
+    def create_new_file(self):
+        # Efface le contenu de la zone de texte
+        self.text_area.delete(1.0, tk.END)
+        # Réinitialise le chemin du fichier actuel
+        self.current_file_path = None
+        # Met à jour la barre d'état
+        self.status_bar['text'] = "Nouveau document vierge"
+
     def on_key_release(self, event=None):
         self.highlight_code(event)
         
@@ -229,6 +245,13 @@ class CodeEditor:
             messagebox.showerror("Error", "Invalid Python interpreter path.")
             return None
     
+    def stop_code_execution(self):
+        if self.current_process:
+            self.current_process.terminate()
+            messagebox.showinfo("Processus arrêté", "Le processus en cours d'exécution a été arrêté.")
+        else:
+            messagebox.showinfo("Aucun processus en cours", "Il n'y a pas de processus en cours d'exécution à arrêter.")
+
     def run_code(self):
         if not self.current_file_path:
             messagebox.showerror("Erreur", "Veuillez sauvegarder le fichier avant de l'exécuter.")
@@ -238,7 +261,7 @@ class CodeEditor:
     
         try:
             # Exécute le script Python directement depuis le chemin actuel
-            subprocess.run([python_path, os.path.abspath(self.current_file_path)], check=True, cwd=os.path.dirname(self.current_file_path))
+            self.current_process = subprocess.Popen([python_path, os.path.abspath(self.current_file_path)], cwd=os.path.dirname(self.current_file_path))
         except subprocess.CalledProcessError as e:
             messagebox.showerror("Erreur pendant l'exécution", str(e))
             
@@ -317,4 +340,5 @@ if __name__ == "__main__":
     root = TkinterDnD.Tk()
     app = CodeEditor(root)
     root.mainloop()
+
 
