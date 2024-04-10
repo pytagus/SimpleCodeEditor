@@ -26,17 +26,52 @@ A simple code editor implemented in Python using Tkinter.
 
 ## Usage
 
-1. **New**: Click on the "+" button to create a new file.
-2. **Open**: Click on the "Open" button to open an existing file.
-3. **Save**: Click on the "Save" button to save the current file.
-4. **Save As**: Click on the "Save As" button to save the current file with a new name/location.
-5. **Version**: Click on the "Version" button to save a version of the current file with timestamp.
-6. **Move Left**: Select text and click on the "<-" button to move it left by one indentation level.
-7. **Move Right**: Select text and click on the "->" button to move it right by one indentation level.
-8. **Run**: Click on the "Run" button to execute the Python script.
-9. **Stop**: Click on the "Stop" button to stop the execution of the running script.
-10. **Python**: Click on the "Python" button to change the Python interpreter path.
-11. **Search**: Enter text in the search box and click on the "Search" button to find text in the code.
+1. **New**:
+   - Click on the "+" button to create a new file.
+   - This will clear the current text area and reset the current file path.
+
+2. **Open**:
+   - Click on the "Open" button to open an existing file.
+   - This will prompt you to select a file from your file system.
+   - Once selected, the contents of the file will be displayed in the text area.
+
+3. **Save**:
+   - Click on the "Save" button to save the changes made to the current file.
+   - If the file has not been previously saved, this will behave like "Save As".
+
+4. **Save As**:
+   - Click on the "Save As" button to save the current file with a new name or in a new location.
+   - This will prompt you to choose a location and enter a filename for the file to be saved.
+
+5. **Version**:
+   - Click on the "Version" button to save a version of the current file with a timestamp.
+   - This will create a copy of the current file with the timestamp appended to the filename.
+
+6. **Move Left**:
+   - Select text in the editor.
+   - Click on the "<-" button to move the selected text left by one indentation level.
+
+7. **Move Right**:
+   - Select text in the editor.
+   - Click on the "->" button to move the selected text right by one indentation level.
+
+8. **Run**:
+   - Click on the "Run" button to execute the Python script.
+   - Before running, make sure to save the file.
+   - This will execute the Python script using the configured Python interpreter.
+
+9. **Stop**:
+   - Click on the "Stop" button to stop the execution of the running script.
+   - This is useful if you need to interrupt a long-running or problematic script.
+
+10. **Python**:
+    - Click on the "Python" button to change the Python interpreter path.
+    - This will prompt you to enter the path to the Python interpreter.
+
+11. **Search**:
+    - Enter text in the search box.
+    - Click on the "Search" button to find occurrences of the text in the code.
+    - The first occurrence will be highlighted, and you can click the button again to find the next occurrence.
 
 ## Requirements
 
