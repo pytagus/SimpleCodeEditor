@@ -25,51 +25,51 @@ class CodeEditor:
 
         # Bouton + New
         self.new_button = tk.Button(self.button_frame, text="+", command=self.create_new_file)
-        self.new_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.new_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         # Bouton Ouvrir
         self.open_button = tk.Button(self.button_frame, text="Open", command=self.open_file)
-        self.open_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.open_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         # Bouton Sauvegarder
         self.save_button = tk.Button(self.button_frame, text="Save", command=self.save_file)
-        self.save_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.save_button.pack(side=tk.LEFT, padx=2, pady=2)
         
         self.save_as_button = tk.Button(self.button_frame, text="Save As", command=self.save_file_as)
-        self.save_as_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.save_as_button.pack(side=tk.LEFT, padx=2, pady=2)
         
         # Bouton Version
         self.version_button = tk.Button(self.button_frame, text="Version", command=self.save_version)
-        self.version_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.version_button.pack(side=tk.LEFT, padx=2, pady=2)
         
         # Bouton Déplacer Gauche
         self.move_left_button = tk.Button(self.button_frame, text="<-", command=self.move_text_left)
-        self.move_left_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.move_left_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         # Bouton Déplacer Droite
         self.move_right_button = tk.Button(self.button_frame, text="->", command=self.move_text_right)
-        self.move_right_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.move_right_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         self.current_file_path = None  # Attribut pour garder la trace du fichier actuellement ouvert
         
         # Bouton Run
         self.run_button = tk.Button(self.button_frame, text="Run", command=self.run_code)
-        self.run_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.run_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         # Bouton Stop
         self.stop_button = tk.Button(self.button_frame, text="Stop", command=self.stop_code_execution)
-        self.stop_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.stop_button.pack(side=tk.LEFT, padx=2, pady=2)
         
         self.python_path_button = tk.Button(self.button_frame, text="Python", command=self.change_python_path)
-        self.python_path_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.python_path_button.pack(side=tk.LEFT, padx=2, pady=2)
         
         # Dans la méthode __init__ de la classe CodeEditor
         self.search_text = tk.StringVar()
         self.search_entry = tk.Entry(self.button_frame, textvariable=self.search_text)
-        self.search_entry.pack(side=tk.LEFT, padx=5, pady=5)
+        self.search_entry.pack(side=tk.LEFT, padx=2, pady=2)
 
         self.search_button = tk.Button(self.button_frame, text="Search", command=self.search_next)
-        self.search_button.pack(side=tk.LEFT, padx=5, pady=5)
+        self.search_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         self.text_area = tk.Text(self.root, undo=True, wrap='word', font=("Monaco", 14))
         self.text_area.pack(expand=True, fill='both')
@@ -93,6 +93,10 @@ class CodeEditor:
 
         self.root.config(menu=self.menu_bar)
         self.text_area.bind('<KeyRelease>', self.on_key_release)
+
+        # Bouton de recherche et de remplacement
+        self.replace_button = tk.Button(self.button_frame, text="Replace", command=self.search_and_replace)
+        self.replace_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         # Création de la barre d'état
         self.status_bar = tk.Label(self.root, text="Prêt", bd=1, relief=tk.SUNKEN, anchor=tk.W)
@@ -134,9 +138,35 @@ class CodeEditor:
 
     def on_file_drop(self, event):
         # Obtenez le chemin du fichier déposé
-        file_path = event.data
+        file_path = event.data.strip('{}')
         if file_path:
             self.open_file(file_path=file_path)
+
+    def search_and_replace(self):
+        search_query = self.search_text.get()
+        if not search_query:
+            messagebox.showinfo("Search", "Please enter search text.")
+            return
+    
+        # Demander le mot de remplacement via une boîte de dialogue
+        replace_text = simpledialog.askstring("Replacement", "Enter the replacement text:")
+        if replace_text is None:  # Si l'utilisateur clique sur Annuler
+            return
+    
+        start_index = "1.0"  # Commencer la recherche depuis le début du document
+        while True:
+            # Rechercher la prochaine occurrence du texte à remplacer
+            pos = self.text_area.search(search_query, start_index, stopindex=tk.END, regexp=True)
+            if not pos:
+                break  # Si aucune autre occurrence n'est trouvée, sortir de la boucle
+    
+            end_pos = f"{pos}+{len(search_query)}c"
+            self.text_area.delete(pos, end_pos)  # Supprimer l'occurrence trouvée
+            self.text_area.insert(pos, replace_text)  # Remplacer par le texte de remplacement
+            start_index = end_pos  # Mettre à jour l'index de départ pour la recherche suivante
+    
+        messagebox.showinfo("Replacement", "All occurrences replaced successfully.")
+
     
     def create_new_file(self):
         # Efface le contenu de la zone de texte
@@ -340,5 +370,7 @@ if __name__ == "__main__":
     root = TkinterDnD.Tk()
     app = CodeEditor(root)
     root.mainloop()
+
+
 
 
