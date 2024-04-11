@@ -1,13 +1,6 @@
 # SimpleCodeEditor
 A lightweight, Python-based text editor tailored for coding and script execution. Developed using Tkinter, this editor integrates basic functionalities such as opening, editing, saving files, and version management, alongside syntax highlighting for Python, CSS, and JavaScript. Moreover, it features the unique capability to directly execute Python scripts within the editor, ensuring a streamlined workflow for Python developers.
 
-
-markdown
-Copy code
-# Simple Code Editor
-
-A simple code editor implemented in Python using Tkinter.
-
 ## Features
 
 - **New**: Create a new file.
