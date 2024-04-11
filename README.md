@@ -21,6 +21,7 @@ A simple code editor implemented in Python using Tkinter.
 - **Stop**: Stop the execution of the running script.
 - **Python**: Change the Python interpreter path.
 - **Search**: Search for text in the code.
+- **Replace**: Search and replace text in the code.
 
 ![SimpleCodeEditorPicture](SimpleCodeEditor.png)
 
@@ -72,6 +73,10 @@ A simple code editor implemented in Python using Tkinter.
     - Enter text in the search box.
     - Click on the "Search" button to find occurrences of the text in the code.
     - The first occurrence will be highlighted, and you can click the button again to find the next occurrence.
+
+12. **Replace**:
+    - After searching for text, enter replacement text in the provided field.
+    - Click on the "Replace" button to replace the found text with the specified replacement text.
 
 ## Requirements
 
