@@ -182,11 +182,15 @@ class CodeEditor:
         
     def save_file_as(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".txt",
-                                                 filetypes=[("Text files", "*.txt"), ("Python files", "*.py"), ("All files", "*.*")])
-        if not file_path:  # L'utilisateur a annulé
+                                                 filetypes=[("Text files", "*.txt"), 
+                                                            ("Python files", "*.py"), 
+                                                            ("JavaScript files", "*.js"),
+                                                            ("HTML files", "*.html"),
+                                                            ("All files", "*.*")])
+        if not file_path:
             return
-        self.current_file_path = file_path  # Mise à jour du chemin du fichier courant
-        self.save_file()  # Sauvegarde le fichier
+        self.current_file_path = file_path
+        self.save_file()  # Appel à save_file qui gère maintenant l'encodage
         
     def handle_tab(self, event):
             self.text_area.insert(tk.INSERT, " " * 4)
@@ -214,7 +218,7 @@ class CodeEditor:
         if file_path:
             self.current_file_path = file_path
             self.status_bar['text'] = f"Ouvert : {file_path}"
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding='utf-8') as file:
                 file_content = file.read()
                 self.text_area.delete(1.0, tk.END)
                 self.text_area.insert(1.0, file_content)
@@ -231,7 +235,7 @@ class CodeEditor:
 
             # Sauvegarde du contenu actuel dans le fichier de version
             code_content = self.text_area.get("1.0", tk.END)
-            with open(version_file_path, 'w') as version_file:
+            with open(version_file_path, 'w', encoding='utf-8') as version_file:
                 version_file.write(code_content)
             messagebox.showinfo("Version sauvegardée", f"Une version du fichier a été sauvegardée sous : {version_file_path}")
         else:
@@ -358,7 +362,7 @@ class CodeEditor:
             # Comportement similaire à "Save As" s'il n'y a pas de fichier courant
             self.save_file_as()
         else:
-            with open(self.current_file_path, 'w') as file:
+            with open(self.current_file_path, 'w', encoding='utf-8') as file:
                 file_content = self.text_area.get(1.0, tk.END)
                 file.write(file_content)
             self.status_bar['text'] = f"Sauvegardé : {self.current_file_path}"
@@ -371,6 +375,8 @@ if __name__ == "__main__":
     root = TkinterDnD.Tk()
     app = CodeEditor(root)
     root.mainloop()
+
+
 
 
 
