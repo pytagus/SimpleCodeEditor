@@ -17,6 +17,7 @@ class CodeEditor:
         self.root.title("Simple Code Editor")
         self.config_path = os.path.join(os.path.expanduser('~'), '.my_code_editor_config')
         self.python_interpreter_path = self.load_config()
+        self.root.configure(bg="#262626")  # Définir la couleur de fond en mode sombre
         self.root.geometry("1060x700")
         
         # Créer un Frame pour les boutons
@@ -71,7 +72,7 @@ class CodeEditor:
         self.search_button = tk.Button(self.button_frame, text="Search", command=self.search_next)
         self.search_button.pack(side=tk.LEFT, padx=2, pady=2)
 
-        self.text_area = tk.Text(self.root, undo=True, wrap='word', font=("Monaco", 14))
+        self.text_area = tk.Text(self.root, undo=True, bg="#262626", fg="white", insertbackground="white", wrap='word', font=("Monaco", 14))
         self.text_area.pack(expand=True, fill='both')
 
         # Enregistrez la zone de texte comme cible de drop et liez l'événement de drop
@@ -370,6 +371,7 @@ if __name__ == "__main__":
     root = TkinterDnD.Tk()
     app = CodeEditor(root)
     root.mainloop()
+
 
 
 
