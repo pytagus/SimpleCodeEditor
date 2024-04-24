@@ -19,7 +19,7 @@ class CodeEditor:
         self.python_interpreter_path = self.load_config()
         self.root.configure(bg="#262626")  # Définir la couleur de fond en mode sombre
         self.root.geometry("1060x700")
-        
+
         # Créer un Frame pour les boutons
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(side=tk.TOP, fill=tk.X)
@@ -35,14 +35,14 @@ class CodeEditor:
         # Bouton Sauvegarder
         self.save_button = tk.Button(self.button_frame, text="Save", command=self.save_file)
         self.save_button.pack(side=tk.LEFT, padx=2, pady=2)
-        
+
         self.save_as_button = tk.Button(self.button_frame, text="Save As", command=self.save_file_as)
         self.save_as_button.pack(side=tk.LEFT, padx=2, pady=2)
-        
+
         # Bouton Version
         self.version_button = tk.Button(self.button_frame, text="Version", command=self.save_version)
         self.version_button.pack(side=tk.LEFT, padx=2, pady=2)
-        
+
         # Bouton Déplacer Gauche
         self.move_left_button = tk.Button(self.button_frame, text="<-", command=self.move_text_left)
         self.move_left_button.pack(side=tk.LEFT, padx=2, pady=2)
@@ -52,7 +52,7 @@ class CodeEditor:
         self.move_right_button.pack(side=tk.LEFT, padx=2, pady=2)
 
         self.current_file_path = None  # Attribut pour garder la trace du fichier actuellement ouvert
-        
+
         # Bouton Run
         self.run_button = tk.Button(self.button_frame, text="Run", command=self.run_code)
         self.run_button.pack(side=tk.LEFT, padx=2, pady=2)
@@ -60,10 +60,10 @@ class CodeEditor:
         # Bouton Stop
         self.stop_button = tk.Button(self.button_frame, text="Stop", command=self.stop_code_execution)
         self.stop_button.pack(side=tk.LEFT, padx=2, pady=2)
-        
+
         self.python_path_button = tk.Button(self.button_frame, text="Python", command=self.change_python_path)
         self.python_path_button.pack(side=tk.LEFT, padx=2, pady=2)
-        
+
         # Dans la méthode __init__ de la classe CodeEditor
         self.search_text = tk.StringVar()
         self.search_entry = tk.Entry(self.button_frame, textvariable=self.search_text)
@@ -103,26 +103,42 @@ class CodeEditor:
         self.status_bar = tk.Label(self.root, text="Prêt", bd=1, relief=tk.SUNKEN, anchor=tk.W)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
+        self.text_area.bind('<Return>', self.handle_return)
+
+        root.bind('<Command-s>', self.save_file)  # Pour Mac
+        root.bind('<Control-s>', self.save_file)  # Pour Windows
+
+
     def highlight_patterns(self):
         self.patterns = [
-            # Chaînes de caractères multilignes
+            # Python: Chaînes de caractères multilignes
             (r'(\"\"\"[^\"]*\"\"\"|\'\'\'[^\']*\'\'\')', 'python_multiline_string', 'lightgrey'),
-            # Mots-clés Python
-            (r'\b(def|class|import|if|else|elif|for|while|return|try|except|finally|with|as|pass|break|continue|lambda|from|async|await)\b', 'python_keyword', '#007ACC'),
-            # CSS - Simplification pour les mots-clés
+            # Python: Noms de fonctions en orange
+            (r'\bdef\s+(\w+)\s*\(', 'python_function_name', 'orange'),
+            # Python: Paramètres de fonction en vert
+            (r'\(\s*([^)]*?)\s*\)', 'function_parameters', 'green'),
+            # Python: Mots-clés
+            (r'\b(class|import|if|else|elif|for|while|return|try|except|finally|with|as|pass|break|continue|lambda|from|async|await|def)\b', 'python_keyword', '#007ACC'),
+            # CSS: Mots-clés
             (r'\b(display|justify-content|align-items|flex-direction|position|background|color|font-size|margin|padding|border)\b', 'css_keyword', '#007ACC'),
-            # JavaScript - Mots-clés
-            (r'\b(break|case|catch|class|const|continue|debugger|default|delete|do|else|export|extends|finally|for|function|if|import|in|instanceof|new|return|super|switch|this|throw|try|typeof|var|void|while|with|yield|async|await)\b', 'js_keyword', '#007ACC'),
-            # Littéraux Python (True, False, None)
+            # JavaScript: Mots-clés génériques
+            (r'\b(break|case|catch|const|continue|debugger|default|delete|do|else|export|extends|finally|for|if|import|in|instanceof|new|return|super|switch|this|throw|try|typeof|var|void|while|with|yield|async|await)\b', 'js_keyword', '#007ACC'),
+            # JavaScript: Highlight le mot 'function' en bleu
+            (r'\bfunction\b', 'js_function_keyword', '#007ACC'),
+            # JavaScript: Highlight le nom de la fonction en orange
+            (r'\bfunction\s+(\w+)', 'js_function_name', 'orange'),
+            # HTML: Tags et attributs
+            (r'</?[\w\s="\'-]*>', 'html_tag', '#007ACC'),
+            # Python: Littéraux (True, False, None)
             (r'\b(True|False|None)\b', 'python_literal', 'red'),
-            # Types de données et fonctions built-in
+            # Python: Types de données et fonctions built-in
             (r'\b(int|str|float|list|dict|tuple|set|print|len|range|type)\b', 'python_builtin', 'orange'),
-            # Nombres
-            (r'\b\d+\b', 'python_number', 'red'),
-            # Commentaires
-            (r'#.*$', 'comment', 'green'),
+            # Général: Nombres
+            (r'\b\d+\b', 'number', 'red'),
+            # Général: Commentaires
+            (r'#.*$|//.*$|<!--.*?-->|/\*.*?\*/', 'comment', 'gray'),
         ]
-    
+
         for _, tag, color in self.patterns:
             self.text_area.tag_configure(tag, foreground=color)
 
@@ -137,6 +153,7 @@ class CodeEditor:
                 end_index = self.text_area.index(f"1.0+{end}c")
                 self.text_area.tag_add(tag, start_index, end_index)
 
+
     def on_file_drop(self, event):
         # Obtenez le chemin du fichier déposé
         file_path = event.data.strip('{}')
@@ -148,27 +165,27 @@ class CodeEditor:
         if not search_query:
             messagebox.showinfo("Search", "Please enter search text.")
             return
-    
+
         # Demander le mot de remplacement via une boîte de dialogue
         replace_text = simpledialog.askstring("Replacement", "Enter the replacement text:")
         if replace_text is None:  # Si l'utilisateur clique sur Annuler
             return
-    
+
         start_index = "1.0"  # Commencer la recherche depuis le début du document
         while True:
             # Rechercher la prochaine occurrence du texte à remplacer
             pos = self.text_area.search(search_query, start_index, stopindex=tk.END, regexp=True)
             if not pos:
                 break  # Si aucune autre occurrence n'est trouvée, sortir de la boucle
-    
+
             end_pos = f"{pos}+{len(search_query)}c"
             self.text_area.delete(pos, end_pos)  # Supprimer l'occurrence trouvée
             self.text_area.insert(pos, replace_text)  # Remplacer par le texte de remplacement
             start_index = end_pos  # Mettre à jour l'index de départ pour la recherche suivante
-    
+
         messagebox.showinfo("Replacement", "All occurrences replaced successfully.")
 
-    
+
     def create_new_file(self):
         # Efface le contenu de la zone de texte
         self.text_area.delete(1.0, tk.END)
@@ -179,11 +196,20 @@ class CodeEditor:
 
     def on_key_release(self, event=None):
         self.highlight_code(event)
-        
+
+    def handle_return(self, event):
+        current_index = self.text_area.index(tk.INSERT)
+        current_line = int(current_index.split('.')[0])
+        current_line_text = self.text_area.get(f"{current_line}.0", f"{current_line}.end")
+        indentation = len(current_line_text) - len(current_line_text.lstrip())
+
+        self.text_area.insert(tk.INSERT, '\n' + ' ' * indentation)
+        return 'break'  # Empêche l'événement de retour à la ligne par défaut
+
     def save_file_as(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".txt",
-                                                 filetypes=[("Text files", "*.txt"), 
-                                                            ("Python files", "*.py"), 
+                                                 filetypes=[("Text files", "*.txt"),
+                                                            ("Python files", "*.py"),
                                                             ("JavaScript files", "*.js"),
                                                             ("HTML files", "*.html"),
                                                             ("All files", "*.*")])
@@ -191,7 +217,7 @@ class CodeEditor:
             return
         self.current_file_path = file_path
         self.save_file()  # Appel à save_file qui gère maintenant l'encodage
-        
+
     def handle_tab(self, event):
             self.text_area.insert(tk.INSERT, " " * 4)
             return 'break'  # Empêche l'événement Tab par défaut
@@ -210,7 +236,7 @@ class CodeEditor:
                 messagebox.showerror("Invalid Path", "The path provided is not a valid file.")
         else:
             messagebox.showwarning("No Input", "No path was entered.")
-    
+
     def open_file(self, file_path=None):
         # Modifié pour accepter un argument file_path
         if not file_path:
@@ -223,7 +249,7 @@ class CodeEditor:
                 self.text_area.delete(1.0, tk.END)
                 self.text_area.insert(1.0, file_content)
                 self.highlight_code()
-                
+
     def save_version(self):
         if self.current_file_path:
             # Générer le nom du fichier de version avec la date et l'heure
@@ -240,7 +266,7 @@ class CodeEditor:
             messagebox.showinfo("Version sauvegardée", f"Une version du fichier a été sauvegardée sous : {version_file_path}")
         else:
             messagebox.showwarning("Aucun fichier", "Ouvrez ou sauvegardez le fichier avant de créer une version.")
-    
+
     def load_config(self):
         """Charge la configuration du chemin de l'interpréteur Python."""
         try:
@@ -266,7 +292,7 @@ class CodeEditor:
         if self.python_interpreter_path:
             # Si le chemin est déjà défini, l'utiliser
             return self.python_interpreter_path
-    
+
         # Demander à l'utilisateur d'entrer le chemin
         python_path = simpledialog.askstring("Python Interpreter Path",
                                              "Please enter the path to the Python interpreter:")
@@ -279,7 +305,7 @@ class CodeEditor:
             # Si aucun chemin n'est fourni ou si le chemin n'est pas valide, afficher un message d'erreur
             messagebox.showerror("Error", "Invalid Python interpreter path.")
             return None
-    
+
     def stop_code_execution(self):
         if self.current_process:
             self.current_process.terminate()
@@ -291,15 +317,15 @@ class CodeEditor:
         if not self.current_file_path:
             messagebox.showerror("Erreur", "Veuillez sauvegarder le fichier avant de l'exécuter.")
             return
-    
+
         python_path = self.find_python_interpreter()  # Utilise la méthode find_python_interpreter pour obtenir le chemin de l'interpréteur Python
-    
+
         try:
             # Exécute le script Python directement depuis le chemin actuel
             self.current_process = subprocess.Popen([python_path, os.path.abspath(self.current_file_path)], cwd=os.path.dirname(self.current_file_path))
         except subprocess.CalledProcessError as e:
             messagebox.showerror("Erreur pendant l'exécution", str(e))
-            
+
     def move_text_left(self):
         try:
             selection_start, selection_end = self.text_area.tag_ranges(tk.SEL)
@@ -335,7 +361,7 @@ class CodeEditor:
         self.text_area.tag_add(tk.SEL, selection_start, end_index)
         self.text_area.mark_set(tk.INSERT, selection_start)
         self.text_area.see(tk.INSERT)
-    
+
     def search_next(self):
         search_query = self.search_text.get()
         if not search_query:
@@ -356,8 +382,8 @@ class CodeEditor:
         self.text_area.tag_add("search_highlight", pos, end_pos)  # Applique le surlignage orange
         self.text_area.mark_set(tk.INSERT, end_pos)
         self.text_area.see(tk.INSERT)
-    
-    def save_file(self):
+
+    def save_file(self, event=None):
         if not self.current_file_path:
             # Comportement similaire à "Save As" s'il n'y a pas de fichier courant
             self.save_file_as()
@@ -366,8 +392,7 @@ class CodeEditor:
                 file_content = self.text_area.get(1.0, tk.END)
                 file.write(file_content)
             self.status_bar['text'] = f"Sauvegardé : {self.current_file_path}"
-            messagebox.showinfo("Sauvegardé", "Votre fichier a été sauvegardé.")
-    
+
     def quit_app(self):
         self.root.quit()
 
@@ -375,10 +400,3 @@ if __name__ == "__main__":
     root = TkinterDnD.Tk()
     app = CodeEditor(root)
     root.mainloop()
-
-
-
-
-
-
-
