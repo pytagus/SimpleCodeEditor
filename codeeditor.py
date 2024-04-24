@@ -123,10 +123,11 @@ class CodeEditor:
             (r'\b(display|justify-content|align-items|flex-direction|position|background|color|font-size|margin|padding|border)\b', 'css_keyword', '#007ACC'),
             # JavaScript: Mots-clés génériques
             (r'\b(break|case|catch|const|continue|debugger|default|delete|do|else|export|extends|finally|for|if|import|in|instanceof|new|return|super|switch|this|throw|try|typeof|var|void|while|with|yield|async|await)\b', 'js_keyword', '#007ACC'),
-            # JavaScript: Highlight le mot 'function' en bleu
-            (r'\bfunction\b', 'js_function_keyword', '#007ACC'),
+            
             # JavaScript: Highlight le nom de la fonction en orange
             (r'\bfunction\s+(\w+)', 'js_function_name', 'orange'),
+            # JavaScript: Highlight le mot 'function' en bleu
+            (r'\bfunction\b', 'js_function_keyword', '#007ACC'),
             # HTML: Tags et attributs
             (r'</?[\w\s="\'-]*>', 'html_tag', '#007ACC'),
             # Python: Littéraux (True, False, None)
@@ -400,3 +401,4 @@ if __name__ == "__main__":
     root = TkinterDnD.Tk()
     app = CodeEditor(root)
     root.mainloop()
+
