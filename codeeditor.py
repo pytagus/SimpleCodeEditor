@@ -79,7 +79,7 @@ class CodeEditor:
         self.text_area.drop_target_register(DND_FILES)
         self.text_area.dnd_bind('<<Drop>>', self.on_file_drop)
 
-        self.text_area.tag_configure("search_highlight", background="orange")
+        self.text_area.tag_configure("search_highlight", background="#ADD8E6")
         self.text_area.bind('<Tab>', self.handle_tab)
 
         self.highlight_patterns()
@@ -99,14 +99,21 @@ class CodeEditor:
         self.replace_button = tk.Button(self.button_frame, text="Replace", command=self.search_and_replace)
         self.replace_button.pack(side=tk.LEFT, padx=2, pady=2)
 
+        self.text_area.bind('<Return>', self.handle_return)
+        self.text_area.bind('<ButtonRelease-1>', self.on_mouse_click)
+
+        root.bind('<Command-s>', self.save_file)  # Pour Mac
+        root.bind('<Control-s>', self.save_file)  # Pour Windows
+        
+        self.line_info_status_bar = None  # Nouvel attribut pour la barre d'état des informations de ligne
+        # Barre d'état pour les informations sur les lignes
+        self.line_info_status_bar = tk.Label(self.root, text="", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        self.line_info_status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+        
         # Création de la barre d'état
         self.status_bar = tk.Label(self.root, text="Prêt", bd=1, relief=tk.SUNKEN, anchor=tk.W)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.text_area.bind('<Return>', self.handle_return)
-
-        root.bind('<Command-s>', self.save_file)  # Pour Mac
-        root.bind('<Control-s>', self.save_file)  # Pour Windows
 
 
     def highlight_patterns(self):
@@ -160,6 +167,13 @@ class CodeEditor:
         file_path = event.data.strip('{}')
         if file_path:
             self.open_file(file_path=file_path)
+            
+            
+    def on_mouse_click(self, event=None):
+        """ Gestionnaire d'événements pour les clics de souris. """
+        self.update_status_bar()
+        self.highlight_code(event)
+
 
     def search_and_replace(self):
         search_query = self.search_text.get()
@@ -194,9 +208,22 @@ class CodeEditor:
         self.current_file_path = None
         # Met à jour la barre d'état
         self.status_bar['text'] = "Nouveau document vierge"
+        
+    def update_status_bar(self):
+        """ Met à jour la barre d'état avec les informations de la ligne actuelle. """
+        current_index = self.text_area.index(tk.INSERT)
+        current_line = int(current_index.split('.')[0])
+        # Obtenir le nombre total de lignes, en considérant qu'il y a au moins une ligne si le texte est vide
+        total_lines = int(self.text_area.index('end-1c').split('.')[0])
+        if self.text_area.get('1.0', 'end-1c').strip() == "":
+            total_lines = 1  # S'il n'y a aucun contenu, considérer qu'il y a une ligne vide
+    
+        # Mettre à jour le texte de la barre d'état des informations de ligne
+        self.line_info_status_bar['text'] = f"Ligne: {current_line} / {total_lines} Total Lignes"
 
     def on_key_release(self, event=None):
         self.highlight_code(event)
+        self.update_status_bar() 
 
     def handle_return(self, event):
         current_index = self.text_area.index(tk.INSERT)
@@ -401,4 +428,10 @@ if __name__ == "__main__":
     root = TkinterDnD.Tk()
     app = CodeEditor(root)
     root.mainloop()
+
+
+
+
+
+
 
